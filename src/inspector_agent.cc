@@ -1,5 +1,6 @@
 #include "inspector_agent.h"
 
+#include "inspector_jsbindings.h"
 #include "inspector_socket_server.h"
 #include "env.h"
 #include "env-inl.h"
@@ -175,7 +176,7 @@ class AgentImpl {
   static void ThreadCbIO(void* agent);
   static void WriteCbIO(uv_async_t* async);
 
-  void InstallInspectorOnProcess();
+  void InstallInspectorOnProcess(InspectorJSBindings* bindings);
 
   void WorkerRunIO();
   void SetConnected(bool connected);
@@ -219,6 +220,7 @@ class AgentImpl {
   std::string script_path_;
   const std::string id_;
 
+  friend class Agent;
   friend class DispatchOnInspectorBackendTask;
   friend class RemoteSessionDelegate;
   friend void InterruptCallback(v8::Isolate*, void* agent);
@@ -342,12 +344,20 @@ bool AgentImpl::Start(v8::Platform* platform, const char* path,
   if (path != nullptr)
     script_name_ = path;
 
-  InstallInspectorOnProcess();
+  InspectorJSBindings* bindings = nullptr;
+
+  if (options.inspector_js_bindings()) {
+    bindings = new InspectorJSBindings();
+  }
+  InstallInspectorOnProcess(bindings);
 
   wait_ = options.wait_for_connect();
   int err = uv_loop_init(&child_loop_);
   CHECK_EQ(err, 0);
 
+  if (bindings) {
+    return true;
+  }
   err = uv_thread_create(&thread_, AgentImpl::ThreadCbIO, this);
   CHECK_EQ(err, 0);
   uv_sem_wait(&start_sem_);
@@ -395,12 +405,14 @@ void AgentImpl::WaitForDisconnect() {
                            v8::ReadOnly).FromJust();                          \
   } while (0)
 
-void AgentImpl::InstallInspectorOnProcess() {
+void AgentImpl::InstallInspectorOnProcess(InspectorJSBindings* bindings) {
   auto env = parent_env_;
   v8::Local<v8::Object> process = env->process_object();
   v8::Local<v8::Object> inspector = v8::Object::New(env->isolate());
   READONLY_PROPERTY(process, "inspector", inspector);
   env->SetMethod(inspector, "wrapConsoleCall", InspectorWrapConsoleCall);
+  if (bindings)
+    bindings->Install(env, inspector);
 }
 
 void AgentImpl::FatalException(v8::Local<v8::Value> error,
@@ -598,6 +610,10 @@ void Agent::WaitForDisconnect() {
 void Agent::FatalException(v8::Local<v8::Value> error,
                            v8::Local<v8::Message> message) {
   impl->FatalException(error, message);
+}
+
+NodeInspector* Agent::inspector() {
+  return impl->inspector_.get();
 }
 
 InspectorAgentDelegate::InspectorAgentDelegate(AgentImpl* agent,

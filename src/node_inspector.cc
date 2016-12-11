@@ -51,6 +51,10 @@ class ChannelImpl final : public v8_inspector::V8Inspector::Channel {
   bool waitForFrontendMessage() {
     return delegate_->WaitForFrontendMessage();
   }
+
+  NodeInspectorSessionDelegate* delegate() {
+    return delegate_;
+  }
  private:
   void sendProtocolResponse(int callId, const StringView& message) override {
     sendMessageToFrontend(message);
@@ -157,6 +161,11 @@ class NodeInspectorClient : public v8_inspector::V8InspectorClient {
         script_id);
   }
 
+  NodeInspectorSessionDelegate* delegate() {
+    if (!channel_)
+      return nullptr;
+    return channel_->delegate();
+  }
  private:
   node::Environment* env_;
   v8::Platform* platform_;
@@ -193,6 +202,10 @@ void NodeInspector::Disconnect() {
 
 void NodeInspector::Dispatch(const v8_inspector::StringView message) {
   client_->dispatchMessageFromFrontend(message);
+}
+
+NodeInspectorSessionDelegate* NodeInspector::delegate() {
+  return client_->delegate();
 }
 
 }  // namespace inspector

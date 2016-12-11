@@ -319,10 +319,12 @@
           ],
           'sources': [
             'src/inspector_agent.cc',
+            'src/inspector_jsbindings.cc',
             'src/inspector_socket.cc',
             'src/inspector_socket_server.cc',
             'src/node_inspector.cc',
             'src/inspector_agent.h',
+            'src/inspector_jsbindings.h',
             'src/inspector_socket.h',
             'src/inspector_socket_server.h',
             'src/node_inspector.h',

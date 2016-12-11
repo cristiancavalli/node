@@ -28,8 +28,12 @@ class DebugOptions {
     return false;
 #endif  // HAVE_INSPECTOR
   }
+#if HAVE_INSPECTOR
+  bool inspector_js_bindings() const {
+    return inspector_js_bindings_;
+  }
+#endif  // HAVE_INSPECTOR
   void EnableDebugAgent(DebugAgentType type);
-  bool ToolsServerEnabled();
   bool wait_for_connect() const { return wait_connect_; }
   std::string host_name() const { return host_name_; }
   int port() const;
@@ -40,6 +44,7 @@ class DebugOptions {
 #if HAVE_INSPECTOR
   bool inspector_enabled_;
 #endif  // HAVE_INSPECTOR
+  bool inspector_js_bindings_;
   bool wait_connect_;
   bool http_enabled_;
   std::string host_name_;

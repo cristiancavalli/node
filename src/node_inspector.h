@@ -37,6 +37,7 @@ class NodeInspector {
   void FatalException(v8::Local<v8::Value> error,
                       v8::Local<v8::Message> message);
   void Connect(NodeInspectorSessionDelegate* delegate);
+  NodeInspectorSessionDelegate* delegate();
   void Disconnect();
   void Dispatch(const v8_inspector::StringView message);
  private:

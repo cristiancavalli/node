@@ -27,6 +27,8 @@ namespace inspector {
 
 class AgentImpl;
 
+class NodeInspector;
+
 class Agent {
  public:
   explicit Agent(node::Environment* env);
@@ -43,6 +45,8 @@ class Agent {
   void WaitForDisconnect();
   void FatalException(v8::Local<v8::Value> error,
                       v8::Local<v8::Message> message);
+
+  NodeInspector* inspector();
  private:
   AgentImpl* impl;
 };

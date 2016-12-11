@@ -56,6 +56,7 @@ DebugOptions::DebugOptions() : debugger_enabled_(false),
 #if HAVE_INSPECTOR
                                inspector_enabled_(false),
 #endif  // HAVE_INSPECTOR
+                               inspector_js_bindings_(false),
                                wait_connect_(false), http_enabled_(false),
                                host_name_("127.0.0.1"), port_(-1) { }
 
@@ -98,6 +99,10 @@ bool DebugOptions::ParseOption(const std::string& option) {
   } else if (option_name == "--inspect") {
     debugger_enabled_ = true;
     enable_inspector = true;
+  } else if (option_name == "--inspector-js-bindings") {
+    debugger_enabled_ = true;
+    enable_inspector = true;
+    inspector_js_bindings_ = true;
   } else if (option_name != "--debug-port" || !has_argument) {
     return false;
   }
