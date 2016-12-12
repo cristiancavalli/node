@@ -130,9 +130,9 @@ static void Disconnect(const FunctionCallbackInfo<Value>& info) {
 
 bool InspectorJSBindings::Install(Environment* env,
                                   Local<Object> inspector) {
-  env->SetMethod(inspector, "Connect", Connect);
-  env->SetMethod(inspector, "Dispatch", Dispatch);
-  env->SetMethod(inspector, "Disconnect", Disconnect);
+  env->SetMethod(inspector, "connect", Connect);
+  env->SetMethod(inspector, "dispatch", Dispatch);
+  env->SetMethod(inspector, "disconnect", Disconnect);
   return true;
 }
 
